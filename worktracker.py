@@ -79,9 +79,9 @@ class Application(Frame):
         self.bind_all("<Escape>", self.quit)
 
         # Select task shortcuts
-        self.bind_all("<Control-1>", partial(self.select_button, "task"))
-        self.bind_all("<Control-2>", partial(self.select_button, "positive"))
-        self.bind_all("<Control-3>", partial(self.select_button, "negative"))
+        self.bind_all("<Control-i>", partial(self.select_button, "task"))
+        self.bind_all("<Control-o>", partial(self.select_button, "positive"))
+        self.bind_all("<Control-p>", partial(self.select_button, "negative"))
 
     def save(self, event):
         state = self.current_state.get()
