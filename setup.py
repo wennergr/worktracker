@@ -7,17 +7,20 @@ Usage:
 
 from setuptools import setup
 
-APP = ['worktracker.py']
-DATA_FILES = []
-PKGS = ["gspread"]
 OPTIONS = {
     'argv_emulation': False,
-    'packages': PKGS
 }
 
 setup(
-    app=APP,
-    data_files=DATA_FILES,
+    name='worktracker',
+    description='Track your everyday tasks',
+    author='Tobias Wennergren',
+    author_email='wennergr@gmail.com',
+    license='MIT',
+    url='https://github.com/wennergr/worktracker',
+    app=['worktracker.py'],
+    data_files=["worktracker_installer.py"],
     options={'py2app': OPTIONS},
     setup_requires=['py2app'],
+    install_requires=['gspread', "ElementC14N"]
 )

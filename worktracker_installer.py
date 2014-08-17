@@ -30,7 +30,7 @@ class GSpreadsheetBackend:
 def message(msg):
     print("> "+msg)
 
-if __name__ == "__main__":
+def install():
     message("Setup for worktrack logger")
     message("Before you start. Login to your google drive account and create and empty spreadsheet")
     username = raw_input("Google Driver username: ")
