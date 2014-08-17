@@ -96,6 +96,12 @@ class Application(Frame):
         self.master.destroy()
 
 if __name__ == "__main__":
+    # Read configuration
+    config = ConfigParser()
+    if not config.read(['worktracker.cfg', os.path.expanduser('~/.worktracker.cfg')]):
+        import worktracker_installer
+        config = worktracker_installer.install()
+
     queue = Queue()
 
     def worker():
@@ -117,10 +123,6 @@ if __name__ == "__main__":
     root.iconify()
     root.deiconify()
     root.lift()
-
-    # Read configuration
-    config = ConfigParser()
-    config.read(['worktracker.cfg', os.path.expanduser('~/.worktracker.cfg')])
 
     backend = GSpreadsheetBackend(
         config.get("google-spreadsheet", "username"),

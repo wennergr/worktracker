@@ -22,5 +22,5 @@ setup(
     data_files=["worktracker_installer.py"],
     options={'py2app': OPTIONS},
     setup_requires=['py2app'],
-    install_requires=['gspread', "ElementC14N"]
+    install_requires=['gspread']
 )
