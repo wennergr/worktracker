@@ -95,41 +95,42 @@ class Application(Frame):
     def quit(self, event):
         self.master.destroy()
 
-queue = Queue()
+if __name__ == "__main__":
+    queue = Queue()
 
-def worker():
-    while True:
-        queue.get()()
-        queue.task_done()
+    def worker():
+        while True:
+            queue.get()()
+            queue.task_done()
 
-# Start worker thread
-thread = Thread(target=worker)
-thread.daemon = True
-thread.start()
+    # Start worker thread
+    thread = Thread(target=worker)
+    thread.daemon = True
+    thread.start()
 
-# Initiate the gui
-root = Tk()
-root.title("Workload tracker")
-root.resizable(0,0)
+    # Initiate the gui
+    root = Tk()
+    root.title("Workload tracker")
+    root.resizable(0,0)
 
-# Do magic to get the window to be in focus
-root.iconify()
-root.deiconify()
-root.lift()
+    # Do magic to get the window to be in focus
+    root.iconify()
+    root.deiconify()
+    root.lift()
 
-# Read configuration
-config = ConfigParser()
-config.read(['worktracker.cfg', os.path.expanduser('~/.worktracker.cfg')])
+    # Read configuration
+    config = ConfigParser()
+    config.read(['worktracker.cfg', os.path.expanduser('~/.worktracker.cfg')])
 
-backend = GSpreadsheetBackend(
-    config.get("google-spreadsheet", "username"),
-    config.get("google-spreadsheet", "password"),
-    config.get("google-spreadsheet", "document_id")
-)
+    backend = GSpreadsheetBackend(
+        config.get("google-spreadsheet", "username"),
+        config.get("google-spreadsheet", "password"),
+        config.get("google-spreadsheet", "document_id")
+    )
 
-app = Application(backend, root, queue)
-app.mainloop()
+    app = Application(backend, root, queue)
+    app.mainloop()
 
-# Wait until all work is done
-queue.join()
+    # Wait until all work is done
+    queue.join()
 
