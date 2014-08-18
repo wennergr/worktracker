@@ -28,7 +28,7 @@ Your spreadsheet id is: 4Hdf9bNqsdsdadwedf
 
 
 ## Integration with Alfred 2
-Worklog integrates with alfred 2 workflow. 
+Worktracker integrates with alfred 2 workflow. 
 
 See the [alfred2](alfred2) folder for more details
 
