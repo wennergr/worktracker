@@ -7,8 +7,18 @@ from datetime import datetime
 from Queue import Queue
 from threading import Thread
 
+import sys
 import os
 import gspread
+
+STATE = {
+    "task"      : 1,
+    "="         : 1, # Task short version
+    "negative"  : 2,
+    "-"         : 2, # Negative short version
+    "positive"  : 3,
+    "+"         : 3  # Positive short version
+}
 
 class GSpreadsheetBackend:
 
@@ -30,23 +40,19 @@ class GSpreadsheetBackend:
         wks.update_acell("B%d" %row_index, message)
 
 
-class Application(Frame):
-
-    STATE_TASK      = 1
-    STATE_POSITIVE  = 2
-    STATE_NEGATIVE  = 3
+class GuiApplication(Frame):
 
     def create_widgets(self):
         self.current_state = IntVar()
-        self.current_state.set(self.STATE_TASK)
+        self.current_state.set(STATE["task"])
 
-        button_task = Radiobutton(self, text="Task", variable=self.current_state, value=self.STATE_TASK, indicatoron=0)
+        button_task = Radiobutton(self, text="Task", variable=self.current_state, value=STATE["task"], indicatoron=0)
         button_task.grid(row=0, column=0),
 
-        button_positive = Radiobutton(self, text="Positive", variable=self.current_state, value=self.STATE_NEGATIVE, indicatoron=0)
+        button_positive = Radiobutton(self, text="Positive", variable=self.current_state, value=STATE["positive"], indicatoron=0)
         button_positive.grid(row=0, column=1),
 
-        button_negative = Radiobutton(self, text="Negtive", variable=self.current_state, value=self.STATE_POSITIVE, indicatoron=0)
+        button_negative = Radiobutton(self, text="Negative", variable=self.current_state, value=STATE["negative"], indicatoron=0)
         button_negative.grid(row=0, column=2)
 
         self.buttons = {
@@ -95,13 +101,7 @@ class Application(Frame):
     def quit(self, event):
         self.master.destroy()
 
-if __name__ == "__main__":
-    # Read configuration
-    config = ConfigParser()
-    if not config.read(['worktracker.cfg', os.path.expanduser('~/.worktracker.cfg')]):
-        import worktracker_installer
-        config = worktracker_installer.install()
-
+def gui_start(backend):
     queue = Queue()
 
     def worker():
@@ -119,10 +119,34 @@ if __name__ == "__main__":
     root.title("Workload tracker")
     root.resizable(0,0)
 
-    # Do magic to get the window to be in focus
-    root.iconify()
-    root.deiconify()
-    root.lift()
+    app = GuiApplication(backend, root, queue)
+    app.mainloop()
+
+    # Wait until all work is done
+    queue.join()
+ 
+def cli_start(backend, args):
+    def usage():
+        print "Usage: %s [task|positive|negative] message" %sys.argv[0]
+
+    if len(sys.argv) != 3:
+        usage()
+
+    type = STATE[sys.argv[1]]
+    if not type:
+        print "Invalid type: %s" %sys[argv[1]]
+
+    message = sys.argv[2]
+
+    backend.connect()
+    backend.write(type, message)
+
+if __name__ == "__main__":
+    # Read configuration
+    config = ConfigParser()
+    if not config.read(['worktracker.cfg', os.path.expanduser('~/.worktracker.cfg')]):
+        import worktracker_installer
+        config = worktracker_installer.install()
 
     backend = GSpreadsheetBackend(
         config.get("google-spreadsheet", "username"),
@@ -130,9 +154,8 @@ if __name__ == "__main__":
         config.get("google-spreadsheet", "document_id")
     )
 
-    app = Application(backend, root, queue)
-    app.mainloop()
-
-    # Wait until all work is done
-    queue.join()
+    if len(sys.argv) <= 1:
+        gui_start(backend)
+    else:
+        cli_start(backend, sys.argv)
 
